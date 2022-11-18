@@ -4,6 +4,12 @@ import cats.effect.IO
 import cps.CpsAwaitable
 import cats.effect.cps.*
 
+/**
+ * Some extensions & utilities used in the examples presented in this repository.
+ * - ! add instead of using IO.await
+ * - logThread used for debugging the thread in which the IO is executed
+ * - unsafeRun utility for executing a IO 
+ */
 object dsl:
   extension [T](io: IO[T])
     transparent inline def unary_!(using CpsAwaitable[IO]) :T = io.await
