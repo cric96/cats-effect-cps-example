@@ -17,6 +17,7 @@ import scala.util.{Random, Try}
 
 @main def main(): Unit = async[IO] {
   !IO(AnsiConsole.systemInstall())
+  // shared state
   val whiteboard = !Whiteboard()
 
   def loop: IO[Unit] = async[IO] {
