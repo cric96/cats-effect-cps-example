@@ -15,10 +15,8 @@ import org.fusesource.jansi.Ansi.ansi
 
 import scala.util.{Random, Try}
 
-type Whiteboard = Ref[IO, List[Todo]]
 @main def main(): Unit = async[IO] {
   !IO(AnsiConsole.systemInstall())
-  val oop = Todo("OOP", "One of the most hard exams in the Cesena bachelor", LabelStatus.InProgress)
   val whiteboard = !Whiteboard()
 
   def loop: IO[Unit] = async[IO] {
@@ -40,7 +38,7 @@ def menu = async[IO] {
   !IO.println(ansi().render("@|bold q.|@ exit to the application"))
 }
 
-def handleInput(whiteboard: Whiteboard): IO[ApplicationStatus] = async[IO] {
+def handleInput(whiteboard: Whiteboard.State): IO[ApplicationStatus] = async[IO] {
   val input = !IO.readLine
   input match
     case "1" => !todosDisplay(whiteboard)
@@ -50,7 +48,7 @@ def handleInput(whiteboard: Whiteboard): IO[ApplicationStatus] = async[IO] {
       !handleInput(whiteboard)
 }
 
-def todosDisplay(whiteboard: Whiteboard): IO[ApplicationStatus] = async[IO] {
+def todosDisplay(whiteboard: Whiteboard.State): IO[ApplicationStatus] = async[IO] {
   val todos = !whiteboard.todos
   todos.foreach(!renderTodo(_))
   !IO.println("Select one todo (name) in order to get the description, press enter to come back to the menu")
@@ -61,7 +59,7 @@ def todosDisplay(whiteboard: Whiteboard): IO[ApplicationStatus] = async[IO] {
   ApplicationStatus.Continue
 }
 
-def detailsOf(todo: Todo, whiteboard: Whiteboard) = async[IO] {
+def detailsOf(todo: Todo, whiteboard: Whiteboard.State) = async[IO] {
   !IO.println(ansi().eraseScreen().bgCyan().bold().a(todo.name).boldOff().bgDefault())
   !IO.println(ansi().bgBrightGreen().a(todo.description).bgDefault())
   !IO.println(ansi().bgDefault().render("You wanna complete it? y/N"))
@@ -76,7 +74,7 @@ def renderTodo(todo: Todo): IO[Unit] =
     case LabelStatus.InProgress => IO.println(ansi().render(s"@|bold,red ${todo.name} |@"))
     case LabelStatus.Done => IO.println(ansi().render(s"@|green ${todo.name}|@"))
 
-def insertTodo(whiteboard: Ref[IO, List[Todo]]): IO[ApplicationStatus] = async[IO] {
+def insertTodo(whiteboard: Whiteboard.State): IO[ApplicationStatus] = async[IO] {
   !IO.println("Insert a name for the todo")
   val name = !IO.readLine
   !IO.println("Insert the description")
